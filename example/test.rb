@@ -1,4 +1,4 @@
-require_relative 'Pusher'
+require_relative '../lib/pusher'
 
 authorizer = Pusher::Authorizer.new("app_id", "ISSUER1:S3CR3T")
 

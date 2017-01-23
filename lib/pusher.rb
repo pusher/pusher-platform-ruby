@@ -5,8 +5,6 @@ TWO_WEEKS = 1209600
 
 module Pusher
     class Authorizer
-        attr_accessor :app_id, :issuer_key, :secret_key
-
         def initialize(app_id, api_key)
             @app_id = app_id
 
