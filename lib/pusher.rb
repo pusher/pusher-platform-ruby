@@ -47,8 +47,8 @@ module Pusher
     def authorize_credentials(user_id = nil)
       time = Time.now.to_i
 
-      access_token = jwt_create(user_id, time + ONE_DAY)
-      refresh_token = jwt_create(user_id, time + TWO_WEEKS)
+      access_token = create_access_token(user_id, time)
+      refresh_token = create_refresh_token(user_id, time)
 
       payload =  {
         access_token: access_token,
@@ -59,11 +59,12 @@ module Pusher
       payload
     end
 
-    def jwt_create(user_id, exp)
+    def jwt_create(time_now, user_id, exp)
       payload = {
         exp: exp,
         iss: @issuer_key,
-        app: @app_id
+        app: @app_id,
+        iat: time_now
       }
 
       payload[:sub] = user_id if user_id
@@ -71,11 +72,19 @@ module Pusher
       JWT.encode(payload, @secret_key, 'HS256')
     end
 
+    def create_access_token(user_id, time_now)
+      jwt_create(time_now, user_id, time_now + ONE_DAY)
+    end
+
+    def create_refresh_token(user_id, time_now)
+      jwt_create(time_now, user_id, time_now + TWO_WEEKS)
+    end
+
     # Creates a payload of refresh and access tokens, from a refresh token.
     #
     # @param refresh_token [String] a JWT refresh token
     def authorize_token(refresh_token)
-      decoded_refresh_token = JWT.decode refresh_token, @secret_key, true, { :algorithm => 'HS256' }
+      decoded_refresh_token = JWT.decode(refresh_token, @secret_key, true, { algorithm: 'HS256' })
       user_id = decoded_refresh_token[0]["sub"]
       authorize_credentials(user_id)
     end
