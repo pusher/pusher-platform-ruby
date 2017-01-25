@@ -7,5 +7,5 @@ require_relative '../lib/pusher'
 app = Pusher::App.new("myAppId", "Issuer1:S3cr3t")
 
 post '/pusherplatform/authorize' do
-    app.authorize (request)
+  app.authorize (request)
 end
