@@ -1,10 +1,10 @@
 require 'jwt'
 require 'rack'
 
-ONE_DAY = 86400
-TWO_WEEKS = 1209600
-
 module Pusher
+  TOKEN_LEEWAY = 30
+  TOKEN_EXPIRY = 24*60*60
+
   class Authenticator
     def initialize(app_id, app_key_id, app_key_secret)
       @app_id = app_id
@@ -19,79 +19,118 @@ module Pusher
     # @return the response object
     def authenticate(request, options)
       form_data = Rack::Utils.parse_nested_query request.body.read
-
       grant_type = form_data['grant_type']
+
       if grant_type == "client_credentials"
-        credentials = form_data["credentials"]
-        payload = authorize_credentials(credentials)
-
-        response = Rack::Response.new(payload.to_json, 200, {"Content-type" => "application/json"})
-      elsif grant_type == 'refresh_token'
-        token = form_data['refresh_token']
-        decoded_refresh_token = JWT.decode(refresh_token, @secret_key, true, { algorithm: 'HS256' })
-        refresh_present = decoded_refresh_token[0]['refresh']
-
-        unless refresh_present
-          error = { error: 'invalid_refresh_token', error_description: 'Refresh tokens must have a refresh claim' }
-          response = Rack::Response.new(error.to_json, 403, {"Content-type" => "application/json"})
-        end
-
-        user_id = decoded_refresh_token[0]['sub']
-        payload = authorize_credentials(user_id)
-        response = Rack::Response.new(payload.to_json, 200, {"Content-type" => "application/json"})
-        else #fuckup
-          error = { error: 'invalid_request', error_description: 'Grant type should be either client_credentials or refresh_token' }
-          response = Rack::Response.new(error.to_json, 400, {"Content-type" => "application/json"})
-        end
-        response
+        return authenticate_with_client_credentials(options)
+      elsif grant_type == "refresh_token"
+        old_refresh_jwt = form_data['refresh_token']
+        return authenticate_with_refresh_token(old_refresh_jwt, options)
+      else
+        return response(401, {
+          error: "unsupported_grant_type"
+        })
       end
+    end
+
+    private
+
+    def authenticate_with_client_credentials(options)
+      return respond_with_new_token_pair(options)
+    end
+
+    def authenticate_with_refresh_token(old_refresh_jwt, options)
+      old_refresh_token = begin
+        JWT.decode(old_refresh_jwt, @app_key_secret, true, {
+          iss: "keys/#{@app_key_id}",
+          verify_iss: true,
+          leeway: 30,
+        }).first
+      rescue => e
+        error_description = if e.is_a?(JWT::InvalidIssuerError)
+          "refresh token issuer is invalid"
+        elsif e.is_a?(JWT::ImmatureSignature)
+          "refresh token is not valid yet"
+        elsif e.is_a?(JWT::ExpiredSignature)
+          "refresh tokan has expired"
+        else
+          "refresh token is invalid"
+        end
+
+        return response(401, {
+          error: "invalid_grant",
+          error_description: error_description,
+          # TODO error_uri
+        })
+      end
+
+      if old_refresh_token["refresh"] != true
+        return response(401, {
+          error: "invalid_grant",
+          error_description: "refresh token does not have a refresh claim",
+          # TODO error_uri
+        })
+      end
+
+      if options[:user_id] != old_refresh_token["sub"]
+        return response(401, {
+          error: "invalid_grant",
+          error_description: "refresh token has an invalid user id",
+          # TODO error_uri
+        })
+      end
+
+      return respond_with_new_token_pair(options)
+    end
 
     # Creates a payload dictionary made out of access and refresh token pair and TTL for the access token.
     #
     # @param user_id [String] optional id of the user, ignore for anonymous users
     # @return [Hash] Payload as a hash
-    def authorize_credentials(user_id = nil)
-      time = Time.now.to_i
-
-      access_token = create_access_token(user_id, time)
-      refresh_token = create_refresh_token(user_id, time)
-
-      payload =  {
+    def respond_with_new_token_pair(options)
+      access_token = generate_access_token(options)
+      refresh_token = generate_refresh_token(options)
+      return response(200, {
         access_token: access_token,
         token_type: "bearer",
-        expires_in: ONE_DAY,
-        refresh_token: refresh_token
-      }
-      payload
+        expires_in: TOKEN_EXPIRY,
+        refresh_token: refresh_token,
+      })
     end
 
-    def jwt_create(base_payload, user_id)
-      payload[:sub] = user_id if user_id
+    def generate_access_token(options)
+      now = Time.now.utc.to_i
 
-      JWT.encode(payload, @secret_key, 'HS256')
-    end
-
-    def create_access_token(user_id, time_now)
-      payload = {
-        exp: time_now + ONE_DAY,
-        iss: @issuer_key,
+      claims = {
         app: @app_id,
-        iat: time_now
+        iss: "keys/#{@app_key_id}",
+        iat: now - TOKEN_LEEWAY,
+        exp: now + TOKEN_EXPIRY + TOKEN_LEEWAY,
+        sub: options[:user_id],
       }
 
-      jwt_create(payload, user_id)
+      JWT.encode(claims, @app_key_secret, "HS256")
     end
 
-    def create_refresh_token(user_id, time_now)
-      payload = {
-        exp: time_now + TWO_WEEKS,
-        iss: @issuer_key,
+    def generate_refresh_token(options)
+      now = Time.now.utc.to_i
+
+      claims = {
         app: @app_id,
-        iat: time_now,
-        refresh: true
+        iss: "keys/#{@app_key_id}",
+        iat: now - TOKEN_LEEWAY,
+        refresh: true,
+        sub: options[:user_id],
       }
 
-      jwt_create(payload, user_id)
+      JWT.encode(claims, @app_key_secret, "HS256")
+    end
+
+    def response(status, body)
+      return {
+        status: status,
+        json: body,
+      }
     end
   end
 end
