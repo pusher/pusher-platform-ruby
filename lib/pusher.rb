@@ -10,7 +10,7 @@ module Pusher
       @app_id = app_id
 
       split_key = api_key.split(':')
-      @issuer_key = split_key[0]
+      @issuer_key = "keys/#{split_key[0]}"
       @secret_key = split_key[1]
     end
 
@@ -68,9 +68,9 @@ module Pusher
     end
 
     def jwt_create(base_payload, user_id)
-      payload[:sub] = user_id if user_id
+      base_payload[:sub] = user_id if user_id
 
-      JWT.encode(payload, @secret_key, 'HS256')
+      JWT.encode(base_payload, @secret_key, 'HS256')
     end
 
     def create_access_token(user_id, time_now)
