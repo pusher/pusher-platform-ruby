@@ -5,21 +5,19 @@ ONE_DAY = 86400
 TWO_WEEKS = 1209600
 
 module Pusher
-  class App
-    def initialize(app_id, api_key)
+  class Authenticator
+    def initialize(app_id, app_key_id, app_key_secret)
       @app_id = app_id
-
-      split_key = api_key.split(':')
-      @issuer_key = split_key[0]
-      @secret_key = split_key[1]
+      @app_key_id = app_key_id
+      @app_key_secret = app_id
     end
 
     # Takes a Rack request to the authorization endpoint and and handles it
     # either returning a new access/refresh token pair, or an error.
     #
-    # @param request [Rack::Request] the request to authorize
+    # @param request [Rack::Request] the request to authenticate
     # @return the response object
-    def authorize(request)
+    def authenticate(request, options)
       form_data = Rack::Utils.parse_nested_query request.body.read
 
       grant_type = form_data['grant_type']
