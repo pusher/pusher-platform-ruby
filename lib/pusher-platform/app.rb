@@ -58,7 +58,7 @@ module Pusher
       now = Time.now.utc.to_i
       claims = {
         app: @app_id,
-        iss: "keys/#{@app_key_id}",
+        iss: @app_key_id,
         su: true,
         iat: now - 30,   # some leeway for the server
         exp: now + 60*5, # 5 minutes should be enough for a single request

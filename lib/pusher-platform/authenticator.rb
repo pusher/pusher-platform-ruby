@@ -42,7 +42,7 @@ module Pusher
     def authenticate_with_refresh_token(old_refresh_jwt, options)
       old_refresh_token = begin
         JWT.decode(old_refresh_jwt, @app_key_secret, true, {
-          iss: "keys/#{@app_key_id}",
+          iss: @app_key_id,
           verify_iss: true,
           leeway: 30,
         }).first
@@ -103,7 +103,7 @@ module Pusher
 
       claims = {
         app: @app_id,
-        iss: "keys/#{@app_key_id}",
+        iss: @app_key_id,
         iat: now - TOKEN_LEEWAY,
         exp: now + TOKEN_EXPIRY + TOKEN_LEEWAY,
         sub: options[:user_id],
@@ -117,7 +117,7 @@ module Pusher
 
       claims = {
         app: @app_id,
-        iss: "keys/#{@app_key_id}",
+        iss: @app_key_id,
         iat: now - TOKEN_LEEWAY,
         refresh: true,
         sub: options[:user_id],
