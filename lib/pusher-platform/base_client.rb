@@ -34,12 +34,12 @@ module Pusher
       elsif response.status >= 300 && response.status <= 399
         raise "unsupported redirect response: #{response.status}"
       elsif response.status >= 400 && response.status <= 599
-        error_body = begin
+        error_description = begin
           JSON.parse(response.body)
         rescue
           response.body
         end
-        raise ErrorResponse.new(response.status, response.headers, error_body)
+        raise ErrorResponse.new(response.status, response.headers, error_description)
       else
         raise "unsupported response code: #{response.status}"
       end
