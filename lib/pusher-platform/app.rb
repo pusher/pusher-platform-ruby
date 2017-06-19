@@ -33,14 +33,6 @@ module Pusher
       @client.request(options)
     end
 
-    def config_request(options)
-      options = scope_request_options("config/apps", options)
-      if options[:jwt].nil?
-        options = options.merge({ jwt: generate_superuser_jwt() })
-      end
-      @client.request(options)
-    end
-
     def authenticate(request, options)
       @authenticator.authenticate(request, options)
     end
@@ -58,7 +50,7 @@ module Pusher
       now = Time.now.utc.to_i
       claims = {
         app: @app_id,
-        iss: @app_key_id,
+        iss: "api_keys/#{@app_key_id}",
         su: true,
         iat: now - 30,   # some leeway for the server
         exp: now + 60*5, # 5 minutes should be enough for a single request

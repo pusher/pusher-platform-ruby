@@ -71,12 +71,3 @@ rescue
   p e
 end
 ```
-
-Apps also provide a config request API:
-
-```ruby
-pusher.config_request(
-  method: "GET",
-  path: "keys",
-)
-```
