@@ -46,7 +46,10 @@ module Pusher
       claims.merge({ sub: options[:user_id] }) unless options[:user_id].nil?
       claims.merge({ su: true }) if options[:su]
 
-      JWT.encode(claims, @key_secret, "HS256")
+      {
+        token: JWT.encode(claims, @key_secret, 'HS256'),
+        expires_in: TOKEN_EXPIRY
+      }
     end
 
     private
