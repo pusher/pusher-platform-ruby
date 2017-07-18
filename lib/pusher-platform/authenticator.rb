@@ -107,8 +107,8 @@ module Pusher
     # @param user_id [String] optional id of the user, ignore for anonymous users
     # @return [Hash] Payload as a hash
     def respond_with_new_token_pair(options)
-      access_token = generate_access_token(options).token
-      refresh_token = generate_refresh_token(options).token
+      access_token = generate_access_token(options)[:token]
+      refresh_token = generate_refresh_token(options)[:token]
       return response(200, {
         access_token: access_token,
         token_type: "bearer",
