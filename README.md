@@ -12,21 +12,22 @@ gem 'pusher-platform', '~> 0.3.1'
 
 ## Usage
 
-In order to access Pusher Platform, first instantiate an App object:
+In order to access Pusher Platform, first instantiate an Instance object:
 
 ```ruby
 require 'pusher-platform'
 
-pusher = Pusher::App.new(
-  cluster: "",
-  app_id: "",
-  app_key: "",
+pusher = Pusher::Instance.new(
+  instance: 'v1:api-ceres:some-instance-id',
+  key: 'key-id:key-secret',
+  service_name: 'chatkit',
+  service_version: 'v1'
 )
 ```
 
 ### Authentication (Rails + Devise)
 
-App objects provide an `authenticate` method, which can be used in Rails
+Instance objects provide an `authenticate` method, which can be used in Rails
 controllers to build authentication endpoints. Authentication endpoints issue
 access tokens used by Pusher Platform clients to access the API.
 
@@ -47,7 +48,7 @@ end
 
 ### Request API
 
-App objects provide a low-level request API, which can be used to contact
+Instance objects provide a low-level request API, which can be used to contact
 Pusher Platform.
 
 ```ruby

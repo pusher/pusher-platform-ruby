@@ -4,8 +4,13 @@ require 'cgi'
 require_relative '../lib/pusher'
 
 # Get these from the Dashbaord
-app = Pusher::App.new("myAppId", "Issuer1:S3cr3t")
+instance = Pusher::Instance.new(
+  instance: 'v1:api-ceres:some-instance-id',
+  key: 'key-id:key-secret',
+  service_name: 'chatkit',
+  service_version: 'v1'
+)
 
 post '/pusherplatform/authorize' do
-  app.authorize (request)
+  instance.authorize (request)
 end

@@ -1,1 +1,1 @@
-require 'pusher-platform/app'
+require 'pusher-platform/instance'

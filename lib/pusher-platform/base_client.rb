@@ -5,7 +5,13 @@ module Pusher
   class BaseClient
     def initialize(options)
       raise "Unspecified host" if options[:host].nil?
-      @connection = Excon.new("https://#{options[:host]}")
+      port_string = options[:port] || ''
+      host_string = "https://#{options[:host]}#{port_string}"
+      @connection = Excon.new(host_string)
+
+      @instance_id = options[:instance_id]
+      @service_name = options[:service_name]
+      @service_version = options[:service_version]
     end
 
     def request(options)
@@ -24,7 +30,7 @@ module Pusher
 
       response = @connection.request(
         method: options[:method],
-        path: options[:path],
+        path: "services/#{@service_name}/#{@service_version}/#{@instance_id}/#{options[:path]}",
         headers: headers,
         body: options[:body],
       )

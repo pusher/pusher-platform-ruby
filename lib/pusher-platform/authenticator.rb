@@ -6,10 +6,10 @@ module Pusher
   TOKEN_EXPIRY = 24*60*60
 
   class Authenticator
-    def initialize(app_id, app_key_id, app_key_secret)
-      @app_id = app_id
-      @app_key_id = app_key_id
-      @app_key_secret = app_id
+    def initialize(instance_id, key_id, key_secret)
+      @instance_id = instance_id
+      @key_id = key_id
+      @key_secret = key_secret
     end
 
     # Takes a Rack request to the authorization endpoint and and handles it
@@ -33,6 +33,22 @@ module Pusher
       end
     end
 
+    def generate_access_token(options)
+      now = Time.now.utc.to_i
+
+      claims = {
+        app: @instance_id,
+        iss: "api_keys/#{@key_id}",
+        iat: now - TOKEN_LEEWAY,
+        exp: now + TOKEN_EXPIRY + TOKEN_LEEWAY,
+      }
+
+      claims.merge({ sub: options[:user_id] }) unless options[:user_id].nil?
+      claims.merge({ su: true }) if options[:su]
+
+      JWT.encode(claims, @key_secret, "HS256")
+    end
+
     private
 
     def authenticate_with_client_credentials(options)
@@ -41,8 +57,8 @@ module Pusher
 
     def authenticate_with_refresh_token(old_refresh_jwt, options)
       old_refresh_token = begin
-        JWT.decode(old_refresh_jwt, @app_key_secret, true, {
-          iss: "api_keys/#{@app_key_id}",
+        JWT.decode(old_refresh_jwt, @key_secret, true, {
+          iss: "api_keys/#{@key_id}",
           verify_iss: true,
           leeway: 30,
         }).first
@@ -98,32 +114,18 @@ module Pusher
       })
     end
 
-    def generate_access_token(options)
-      now = Time.now.utc.to_i
-
-      claims = {
-        app: @app_id,
-        iss: "api_keys/#{@app_key_id}",
-        iat: now - TOKEN_LEEWAY,
-        exp: now + TOKEN_EXPIRY + TOKEN_LEEWAY,
-        sub: options[:user_id],
-      }
-
-      JWT.encode(claims, @app_key_secret, "HS256")
-    end
-
     def generate_refresh_token(options)
       now = Time.now.utc.to_i
 
       claims = {
-        app: @app_id,
-        iss: "api_keys/#{@app_key_id}",
+        app: @instance_id,
+        iss: "api_keys/#{@key_id}",
         iat: now - TOKEN_LEEWAY,
         refresh: true,
         sub: options[:user_id],
       }
 
-      JWT.encode(claims, @app_key_secret, "HS256")
+      JWT.encode(claims, @key_secret, "HS256")
     end
 
     def response(status, body)
