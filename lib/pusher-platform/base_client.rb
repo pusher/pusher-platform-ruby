@@ -29,7 +29,9 @@ module Pusher
       end
 
       path = "services/#{@service_name}/#{@service_version}/#{@instance_id}/#{options[:path]}"
-      body = options[:body].any? ? options[:body].to_json : nil
+      body = unless options[:body].nil?
+        options[:body].to_json
+      end
 
       response = @connection.request(
         method: options[:method],
