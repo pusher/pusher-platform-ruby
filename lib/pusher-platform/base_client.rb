@@ -28,11 +28,14 @@ module Pusher
         headers["Authorization"] = "Bearer #{options[:jwt]}"
       end
 
+      path = "services/#{@service_name}/#{@service_version}/#{@instance_id}/#{options[:path]}"
+      body = options[:body].any? ? options[:body].to_json : nil
+
       response = @connection.request(
         method: options[:method],
-        path: "services/#{@service_name}/#{@service_version}/#{@instance_id}/#{options[:path]}",
+        path: sanitise_path(path),
         headers: headers,
-        body: options[:body],
+        body: body,
       )
 
       if response.status >= 200 && response.status <= 299
@@ -49,6 +52,12 @@ module Pusher
       else
         raise "unsupported response code: #{response.status}"
       end
+    end
+
+    private
+
+    def sanitise_path(path)
+      path.gsub(/\/+/, "/").gsub(/\/+$/, "")
     end
   end
 end
