@@ -44,7 +44,6 @@ module Pusher
     end
 
     def request(options)
-      options = scope_request_options(options)
       if options[:jwt].nil?
         options = options.merge(
           { jwt: @authenticator.generate_access_token({ su: true })[:token] }
@@ -60,15 +59,5 @@ module Pusher
     def generate_access_token(options)
       @authenticator.generate_access_token(options)
     end
-
-    private
-
-    def scope_request_options(options)
-      path = options[:path]
-        .gsub(/\/+/, "/")
-        .gsub(/\/+$/, "")
-      options.merge({ path: path })
-    end
-
   end
 end
