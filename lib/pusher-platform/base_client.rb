@@ -38,6 +38,7 @@ module Pusher
         path: sanitise_path(path),
         headers: headers,
         body: body,
+        query: options[:query]
       )
 
       if response.status >= 200 && response.status <= 299
