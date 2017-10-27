@@ -9,7 +9,7 @@ module Pusher
 
   class Instance
     def initialize(options)
-      raise "No locator provided" if options[:locator].nil?
+      raise "No instance locator provided" if options[:locator].nil?
       raise "No service name provided" if options[:service_name].nil?
       raise "No service version provided" if options[:service_version].nil?
       locator = options[:locator]
