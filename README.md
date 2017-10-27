@@ -18,7 +18,7 @@ In order to access Pusher Platform, first instantiate an Instance object:
 require 'pusher-platform'
 
 pusher = Pusher::Instance.new(
-  instance: 'v1:api-ceres:some-instance-id',
+  locator: 'your:instance:locator',
   key: 'key-id:key-secret',
   service_name: 'chatkit',
   service_version: 'v1'

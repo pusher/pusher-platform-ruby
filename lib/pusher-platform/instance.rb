@@ -9,10 +9,10 @@ module Pusher
 
   class Instance
     def initialize(options)
-      raise "No instance provided" if options[:instance].nil?
+      raise "No instance locator provided" if options[:locator].nil?
       raise "No service name provided" if options[:service_name].nil?
       raise "No service version provided" if options[:service_version].nil?
-      instance = options[:instance]
+      locator = options[:locator]
       @service_name = options[:service_name]
       @service_version = options[:service_version]
 
@@ -22,11 +22,11 @@ module Pusher
       @key_id = key_parts[1]
       @key_secret = key_parts[2]
 
-      split_instance = instance.split(':')
+      split_locator = locator.split(':')
 
-      @platform_version = split_instance[0]
-      @cluster = split_instance[1]
-      @instance_id = split_instance[2]
+      @platform_version = split_locator[0]
+      @cluster = split_locator[1]
+      @instance_id = split_locator[2]
 
       @client = if options[:client]
         options[:client]
