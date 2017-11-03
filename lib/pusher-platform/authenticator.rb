@@ -40,7 +40,7 @@ module Pusher
         app: @instance_id,
         iss: "api_keys/#{@key_id}",
         iat: now - TOKEN_LEEWAY,
-        exp: now + TOKEN_EXPIRY + TOKEN_LEEWAY,
+        exp: now + TOKEN_EXPIRY - TOKEN_LEEWAY # TODO: Change to + TOKEN_LEEWAY soon, but for now max exp is 86400
       }
 
       claims.merge!({ sub: options[:user_id] }) unless options[:user_id].nil?
