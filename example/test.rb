@@ -1,6 +1,6 @@
 require_relative '../lib/pusher'
 
-authorizer = Pusher::Authorizer.new("app_id", "ISSUER1:S3CR3T")
+authorizer = Pusher::Authorizer.new("instance_id", "ISSUER1:S3CR3T")
 
 payload = authorizer.authorize_credentials("12313")
 puts payload

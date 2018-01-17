@@ -37,7 +37,7 @@ module Pusher
       now = Time.now.utc.to_i
 
       claims = {
-        app: @instance_id,
+        instance: @instance_id,
         iss: "api_keys/#{@key_id}",
         iat: now - TOKEN_LEEWAY,
         exp: now + TOKEN_EXPIRY - TOKEN_LEEWAY # TODO: Change to + TOKEN_LEEWAY soon, but for now max exp is 86400
@@ -121,7 +121,7 @@ module Pusher
       now = Time.now.utc.to_i
 
       claims = {
-        app: @instance_id,
+        instance: @instance_id,
         iss: "api_keys/#{@key_id}",
         iat: now - TOKEN_LEEWAY,
         refresh: true,
