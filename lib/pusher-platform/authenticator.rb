@@ -2,7 +2,6 @@ require 'jwt'
 require 'rack'
 
 module Pusher
-  TOKEN_LEEWAY = 30
   TOKEN_EXPIRY = 24*60*60
 
   class Authenticator
@@ -39,8 +38,8 @@ module Pusher
       claims = {
         instance: @instance_id,
         iss: "api_keys/#{@key_id}",
-        iat: now - TOKEN_LEEWAY,
-        exp: now + TOKEN_EXPIRY - TOKEN_LEEWAY # TODO: Change to + TOKEN_LEEWAY soon, but for now max exp is 86400
+        iat: now,
+        exp: now + TOKEN_EXPIRY
       }
 
       claims.merge!({ sub: options[:user_id] }) unless options[:user_id].nil?
@@ -63,7 +62,6 @@ module Pusher
         JWT.decode(old_refresh_jwt, @key_secret, true, {
           iss: "api_keys/#{@key_id}",
           verify_iss: true,
-          leeway: 30,
         }).first
       rescue => e
         error_description = if e.is_a?(JWT::InvalidIssuerError)
@@ -123,7 +121,7 @@ module Pusher
       claims = {
         instance: @instance_id,
         iss: "api_keys/#{@key_id}",
-        iat: now - TOKEN_LEEWAY,
+        iat: now,
         refresh: true,
         sub: options[:user_id],
       }
