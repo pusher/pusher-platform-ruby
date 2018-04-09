@@ -1,7 +1,8 @@
 require 'excon'
 require 'json'
+require_relative './error_response'
 
-module Pusher
+module PusherPlatform
   class BaseClient
     def initialize(options)
       raise "Unspecified host" if options[:host].nil?

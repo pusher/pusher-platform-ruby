@@ -1,4 +1,6 @@
-module Pusher
+require_relative './common'
+
+module PusherPlatform
   class ErrorResponse < Error
     attr_accessor :status, :headers, :description
 
@@ -9,7 +11,7 @@ module Pusher
     end
 
     def to_s
-      "Pusher::ErrorResponse: #{status} #{description}"
+      "PusherPlatform::ErrorResponse - status: #{status} description: #{description}"
     end
   end
 end

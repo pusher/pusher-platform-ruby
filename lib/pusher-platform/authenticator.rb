@@ -1,7 +1,8 @@
 require 'jwt'
 require 'rack'
+require_relative './error_with_status'
 
-module Pusher
+module PusherPlatform
   TOKEN_EXPIRY = 24*60*60
 
   class Authenticator
@@ -11,25 +12,13 @@ module Pusher
       @key_secret = key_secret
     end
 
-    # Takes a Rack request to the authorization endpoint and and handles it
-    # either returning a new access/refresh token pair, or an error.
-    #
-    # @param request [Rack::Request] the request to authenticate
-    # @return the response object
-    def authenticate(request, options)
-      form_data = Rack::Utils.parse_nested_query request.body.read
-      grant_type = form_data['grant_type']
+    def authenticate(auth_payload, options)
+      authenticate_based_on_grant_type(auth_payload, options)
+    end
 
-      if grant_type == "client_credentials"
-        return authenticate_with_client_credentials(options)
-      elsif grant_type == "refresh_token"
-        old_refresh_jwt = form_data['refresh_token']
-        return authenticate_with_refresh_token(old_refresh_jwt, options)
-      else
-        return response(401, {
-          error: "unsupported_grant_type"
-        })
-      end
+    def authenticate_with_request(request, options)
+      auth_data = Rack::Utils.parse_nested_query request.body.read
+      authenticate_based_on_grant_type(auth_data, options)
     end
 
     def generate_access_token(options)
@@ -53,13 +42,26 @@ module Pusher
 
     private
 
+    def authenticate_based_on_grant_type(auth_data, options)
+      grant_type = auth_data['grant_type'] || auth_data[:grant_type]
+
+      if grant_type == "client_credentials"
+        return authenticate_with_client_credentials(options)
+      elsif grant_type == "refresh_token"
+        refresh_token = auth_data['refresh_token'] || auth_data[:refresh_token]
+        return authenticate_with_refresh_token(refresh_token, options)
+      else
+        raise "Unsupported grant_type #{grant_type}"
+      end
+    end
+
     def authenticate_with_client_credentials(options)
       return respond_with_new_token_pair(options)
     end
 
-    def authenticate_with_refresh_token(old_refresh_jwt, options)
+    def authenticate_with_refresh_token(refresh_token, options)
       old_refresh_token = begin
-        JWT.decode(old_refresh_jwt, @key_secret, true, {
+        JWT.decode(refresh_token, @key_secret, true, {
           iss: "api_keys/#{@key_id}",
           verify_iss: true,
         }).first
@@ -74,27 +76,15 @@ module Pusher
           "refresh token is invalid"
         end
 
-        return response(401, {
-          error: "invalid_grant",
-          error_description: error_description,
-          # TODO error_uri
-        })
+        raise ErrorWithStatus.new(401, error_description)
       end
 
       if old_refresh_token["refresh"] != true
-        return response(401, {
-          error: "invalid_grant",
-          error_description: "refresh token does not have a refresh claim",
-          # TODO error_uri
-        })
+        raise ErrorWithStatus.new(401, "refresh token does not have a refresh claim")
       end
 
       if options[:user_id] != old_refresh_token["sub"]
-        return response(401, {
-          error: "invalid_grant",
-          error_description: "refresh token has an invalid user id",
-          # TODO error_uri
-        })
+        raise ErrorWithStatus.new(401, "refresh token has an invalid user id")
       end
 
       return respond_with_new_token_pair(options)
@@ -107,12 +97,12 @@ module Pusher
     def respond_with_new_token_pair(options)
       access_token = generate_access_token(options)[:token]
       refresh_token = generate_refresh_token(options)[:token]
-      return response(200, {
+      {
         access_token: access_token,
         token_type: "bearer",
         expires_in: TOKEN_EXPIRY,
         refresh_token: refresh_token,
-      })
+      }
     end
 
     def generate_refresh_token(options)
@@ -127,13 +117,6 @@ module Pusher
       }
 
       { token: JWT.encode(claims, @key_secret, 'HS256') }
-    end
-
-    def response(status, body)
-      return {
-        status: status,
-        json: body,
-      }
     end
   end
 end

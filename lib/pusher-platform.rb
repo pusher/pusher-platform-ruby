@@ -1,1 +1,1 @@
-require 'pusher-platform/instance'
+require_relative 'pusher-platform/instance'
