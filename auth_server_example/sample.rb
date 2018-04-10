@@ -4,7 +4,7 @@ require 'cgi'
 require_relative '../lib/pusher-platform'
 
 # Get these from the Dashbaord
-instance = PuPusherPlatformsher::Instance.new(
+instance = PusherPlatform::Instance.new(
   locator: 'v1:api-ceres:some-instance-id',
   key: 'key-id:key-secret',
   service_name: 'chatkit',
