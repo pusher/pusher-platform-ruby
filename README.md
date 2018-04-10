@@ -17,7 +17,7 @@ In order to access Pusher Platform, first instantiate an Instance object:
 ```ruby
 require 'pusher-platform'
 
-pusher = Pusher::Instance.new(
+pusher = PusherPlatform::Instance.new(
   locator: 'your:instance:locator',
   key: 'key-id:key-secret',
   service_name: 'chatkit',
@@ -39,9 +39,10 @@ class AuthController < ActionController::Base
   before_action :authenticate_user!
 
   def auth
-    render pusher.authenticate(request, {
-      user_id: current_user.id,
-    })
+    render json: pusher.authenticate_with_request(
+      request,
+      { user_id: current_user.id }
+    )
   end
 end
 ```
@@ -64,7 +65,7 @@ begin
   p response.status
   p response.headers
   p response.body
-rescue Pusher::ErrorResponse => e
+rescue PusherPlatform::ErrorResponse => e
   p e.status
   p e.headers
   p e.description
