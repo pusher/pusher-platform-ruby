@@ -5,7 +5,7 @@
 ### Changes
 
 - Rename `authenticate` to `authenticate_with_request`
-- `authenticate` (now `authenticate_with_request`) no longer returns a status code. It will either return a `Hash` containing the required authentication payload or will raise an error
+- `authenticate` (now `authenticate_with_request`) no longer returns a status code. It will either return a `Hash` containing the required authentication payload or an error with information about the reason for authentication failure
 - Add some examples
 
 ### Added
