@@ -1,6 +1,6 @@
 require 'jwt'
 require 'rack'
-require_relative './error_with_status'
+require_relative './error_response'
 
 module PusherPlatform
   TOKEN_EXPIRY = 24*60*60
@@ -51,12 +51,17 @@ module PusherPlatform
         refresh_token = auth_data['refresh_token'] || auth_data[:refresh_token]
         return authenticate_with_refresh_token(refresh_token, options)
       else
-        raise "Unsupported grant_type #{grant_type}"
+        err = ErrorResponse.new({
+          status: 401,
+          error: 'invalid_grant_type',
+          error_description: "Unsupported grant_type #{grant_type}"
+        })
+        return err
       end
     end
 
     def authenticate_with_client_credentials(options)
-      return respond_with_new_token_pair(options)
+      return new_token_pair(options)
     end
 
     def authenticate_with_refresh_token(refresh_token, options)
@@ -67,34 +72,44 @@ module PusherPlatform
         }).first
       rescue => e
         error_description = if e.is_a?(JWT::InvalidIssuerError)
-          "refresh token issuer is invalid"
+          "Refresh token issuer is invalid"
         elsif e.is_a?(JWT::ImmatureSignature)
-          "refresh token is not valid yet"
+          "Refresh token is not valid yet"
         elsif e.is_a?(JWT::ExpiredSignature)
-          "refresh tokan has expired"
+          "Refresh tokan has expired"
         else
-          "refresh token is invalid"
+          "Refresh token is invalid"
         end
 
-        raise ErrorWithStatus.new(401, error_description)
+        err = ErrorResponse.new({
+          status: 401,
+          error: 'invalid_refresh_token',
+          error_description: error_description
+        })
+        return err
       end
 
       if old_refresh_token["refresh"] != true
-        raise ErrorWithStatus.new(401, "refresh token does not have a refresh claim")
+        err = ErrorResponse.new({
+          status: 401,
+          error: 'invalid_refresh_token',
+          error_description: "Refresh token does not have a refresh claim"
+        })
+        return err
       end
 
       if options[:user_id] != old_refresh_token["sub"]
-        raise ErrorWithStatus.new(401, "refresh token has an invalid user id")
+        return ErrorResponse.new(401, "refresh token has an invalid user id")
       end
 
-      return respond_with_new_token_pair(options)
+      return new_token_pair(options)
     end
 
     # Creates a payload dictionary made out of access and refresh token pair and TTL for the access token.
     #
     # @param user_id [String] optional id of the user, ignore for anonymous users
     # @return [Hash] Payload as a hash
-    def respond_with_new_token_pair(options)
+    def new_token_pair(options)
       access_token = generate_access_token(options)[:token]
       refresh_token = generate_refresh_token(options)[:token]
       {
