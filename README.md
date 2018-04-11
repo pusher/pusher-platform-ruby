@@ -66,9 +66,7 @@ begin
   p response.headers
   p response.body
 rescue PusherPlatform::ErrorResponse => e
-  p e.status
-  p e.headers
-  p e.description
+  p e.to_s
 rescue
   p e
 end
