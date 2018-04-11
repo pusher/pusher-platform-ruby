@@ -11,6 +11,6 @@ instance = PusherPlatform::Instance.new(
   service_version: 'v1'
 )
 
-post '/pusherplatform/authenticate' do
-  instance.authenticate_with_request(request, { user_id: 'ham' })
+post '/' do
+  instance.authenticate_with_request(request, { user_id: 'ham' }).to_json
 end
