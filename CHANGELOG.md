@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [0.7.0] 2018-04-12
+
 ### Changes
 
 - Rename `authenticate` to `authenticate_with_request`
