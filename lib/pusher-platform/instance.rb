@@ -3,7 +3,7 @@ require_relative './base_client'
 require_relative './common'
 require_relative './error_response'
 
-module Pusher
+module PusherPlatform
 
   HOST_BASE = 'pusherplatform.io'
 
@@ -52,8 +52,12 @@ module Pusher
       @client.request(options)
     end
 
-    def authenticate(request, options)
-      @authenticator.authenticate(request, options)
+    def authenticate(auth_payload, options)
+      @authenticator.authenticate(auth_payload, options)
+    end
+
+    def authenticate_with_request(request, options)
+      @authenticator.authenticate_with_request(request, options)
     end
 
     def generate_access_token(options)
