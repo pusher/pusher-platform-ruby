@@ -8,7 +8,10 @@ instance = PusherPlatform::Instance.new(
   service_version: 'v1'
 )
 
-puts instance.authenticate({ grant_type: 'client_credentials' }, { user_id: 'ham' })
+puts instance.authenticate({ grant_type: 'client_credentials' }, { user_id: 'ham' }).to_json
 
 # OR
-# puts instance.authenticate({ grant_type: 'refresh_token', refresh_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpbnN0YW5jZSI6InNvbWUtaW5zdGFuY2UtaWQiLCJpc3MiOiJhcGlfa2V5cy9rZXktaWQiLCJpYXQiOjE1MjMyOTEyMzEsInJlZnJlc2giOnRydWUsInN1YiI6ImhhbSJ9.BvvcD4gIBLK43uNrykSLZbUP5LNqG1UPisv2x_T_vs8' }, { user_id: 'ham' })
+# puts instance.authenticate_with_refresh_token({ grant_type: 'client_credentials' }, { user_id: 'ham' })
+
+# OR
+# puts instance.authenticate_with_refresh_token({ grant_type: 'refresh_token', refresh_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpbnN0YW5jZSI6InNvbWUtaW5zdGFuY2UtaWQiLCJpc3MiOiJhcGlfa2V5cy9rZXktaWQiLCJpYXQiOjE1MjMyOTEyMzEsInJlZnJlc2giOnRydWUsInN1YiI6ImhhbSJ9.BvvcD4gIBLK43uNrykSLZbUP5LNqG1UPisv2x_T_vs8' }, { user_id: 'ham' })
