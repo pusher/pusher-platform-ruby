@@ -1,6 +1,7 @@
 require 'jwt'
 require 'rack'
-require_relative './error_response'
+require_relative './common'
+require_relative './authentication_response'
 
 module PusherPlatform
   TOKEN_EXPIRY = 24*60*60
@@ -13,10 +14,31 @@ module PusherPlatform
     end
 
     def authenticate(auth_payload, options)
-      authenticate_based_on_grant_type(auth_payload, options)
+      grant_type = auth_payload['grant_type'] || auth_payload[:grant_type]
+
+      unless grant_type == "client_credentials"
+        return AuthenticationResponse.new({
+          status: 422,
+          body: {
+            error: 'token_provider/invalid_grant_type',
+            error_description: "The grant_type provided, #{grant_type}, is unsupported"
+          }
+        })
+      end
+
+      authenticate_using_client_credentials(options)
     end
 
     def authenticate_with_request(request, options)
+      auth_data = Rack::Utils.parse_nested_query request.body.read
+      authenticate(auth_data, options)
+    end
+
+    def authenticate_with_refresh_token(auth_payload, options)
+      authenticate_based_on_grant_type(auth_payload, options)
+    end
+
+    def authenticate_with_refresh_token_and_request(request, options)
       auth_data = Rack::Utils.parse_nested_query request.body.read
       authenticate_based_on_grant_type(auth_data, options)
     end
@@ -46,25 +68,38 @@ module PusherPlatform
       grant_type = auth_data['grant_type'] || auth_data[:grant_type]
 
       if grant_type == "client_credentials"
-        return authenticate_with_client_credentials(options)
+        return authenticate_using_client_credentials(options, true)
       elsif grant_type == "refresh_token"
         refresh_token = auth_data['refresh_token'] || auth_data[:refresh_token]
-        return authenticate_with_refresh_token(refresh_token, options)
+        return authenticate_using_refresh_token(refresh_token, options)
       else
-        err = ErrorResponse.new({
-          status: 401,
-          error: 'invalid_grant_type',
-          error_description: "Unsupported grant_type #{grant_type}"
+        return AuthenticationResponse.new({
+          status: 422,
+          body: ErrorBody.new({
+            error: 'token_provider/invalid_grant_type',
+            error_description: "The grant_type provided, #{grant_type}, is unsupported"
+          })
         })
-        return err
       end
     end
 
-    def authenticate_with_client_credentials(options)
-      return new_token_pair(options)
+    def authenticate_using_client_credentials(options, with_refresh_token = false)
+      access_token = generate_access_token(options)[:token]
+      token_payload = {
+        access_token: access_token,
+        token_type: "bearer",
+        expires_in: TOKEN_EXPIRY
+      }
+
+      token_payload[:refresh_token] = generate_refresh_token(options)[:token] if with_refresh_token
+
+      return AuthenticationResponse.new({
+        status: 200,
+        body: token_payload
+      })
     end
 
-    def authenticate_with_refresh_token(refresh_token, options)
+    def authenticate_using_refresh_token(refresh_token, options)
       old_refresh_token = begin
         JWT.decode(refresh_token, @key_secret, true, {
           iss: "api_keys/#{@key_id}",
@@ -76,33 +111,44 @@ module PusherPlatform
         elsif e.is_a?(JWT::ImmatureSignature)
           "Refresh token is not valid yet"
         elsif e.is_a?(JWT::ExpiredSignature)
-          "Refresh tokan has expired"
+          "Refresh token has expired"
         else
           "Refresh token is invalid"
         end
 
-        err = ErrorResponse.new({
+        return AuthenticationResponse.new({
           status: 401,
-          error: 'invalid_refresh_token',
-          error_description: error_description
+          body: ErrorBody.new({
+            error: "token_provider/invalid_refresh_token",
+            error_description: error_description
+          })
         })
-        return err
       end
 
       if old_refresh_token["refresh"] != true
-        err = ErrorResponse.new({
+        return AuthenticationResponse.new({
           status: 401,
-          error: 'invalid_refresh_token',
-          error_description: "Refresh token does not have a refresh claim"
+          body: ErrorBody.new({
+            error: "token_provider/invalid_refresh_token",
+            error_description: "Refresh token does not have a refresh claim"
+          })
         })
-        return err
       end
 
       if options[:user_id] != old_refresh_token["sub"]
-        return ErrorResponse.new(401, "refresh token has an invalid user id")
+        return AuthenticationResponse.new({
+          status: 401,
+          body: ErrorBody.new({
+            error: "token_provider/invalid_user_id_in_refresh_token",
+            error_description: "Refresh token has an invalid user id"
+          })
+        })
       end
 
-      return new_token_pair(options)
+      return AuthenticationResponse.new({
+        status: 200,
+        body: new_token_pair(options)
+      })
     end
 
     # Creates a payload dictionary made out of access and refresh token pair and TTL for the access token.
