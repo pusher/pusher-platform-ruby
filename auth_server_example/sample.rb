@@ -12,5 +12,11 @@ instance = PusherPlatform::Instance.new(
 )
 
 post '/' do
-  instance.authenticate_with_request(request, { user_id: 'ham' }).to_json
+  auth_payload = instance.authenticate_with_request(request, { user_id: 'ham' })
+  [auth_payload.status, auth_payload.body.to_json]
+end
+
+post '/refresh' do
+  auth_payload = instance.authenticate_with_refresh_token_and_request(request, { user_id: 'ham' })
+  [auth_payload.status, auth_payload.body.to_json]
 end
