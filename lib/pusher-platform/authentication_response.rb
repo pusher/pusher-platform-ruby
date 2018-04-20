@@ -13,12 +13,11 @@ module PusherPlatform
     end
 
     def as_json(options = {})
-      json = {
+      {
         status: @status,
         headers: @headers,
         body: @body
       }
-      json
     end
 
     def to_json(*options)
