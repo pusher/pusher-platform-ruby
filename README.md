@@ -43,6 +43,7 @@ class AuthController < ActionController::Base
       request,
       { user_id: current_user.id }
     )
+    response.headers = response.headers.merge(auth_data.headers)
     render json: auth_data.body, status: auth_data.status
   end
 end
