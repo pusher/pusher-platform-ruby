@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [0.8.0] 2018-04-20
+
 ### Additions
 
 - `authenticate_with_refresh_token` has been added if you want to support the `refresh_token` grant type and return refresh tokens as part of the authentication process
