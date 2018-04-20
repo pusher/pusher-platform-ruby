@@ -60,6 +60,14 @@ module PusherPlatform
       @authenticator.authenticate_with_request(request, options)
     end
 
+    def authenticate_with_refresh_token(auth_payload, options)
+      @authenticator.authenticate_with_refresh_token(auth_payload, options)
+    end
+
+    def authenticate_with_refresh_token_and_request(auth_payload, options)
+      @authenticator.authenticate_with_refresh_token_and_request(auth_payload, options)
+    end
+
     def generate_access_token(options)
       @authenticator.generate_access_token(options)
     end

@@ -39,10 +39,12 @@ class AuthController < ActionController::Base
   before_action :authenticate_user!
 
   def auth
-    render json: pusher.authenticate_with_request(
+    auth_data = pusher.authenticate_with_request(
       request,
       { user_id: current_user.id }
     )
+    response.headers = response.headers.merge(auth_data.headers)
+    render json: auth_data.body, status: auth_data.status
   end
 end
 ```
