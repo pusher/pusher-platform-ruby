@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.8.0...HEAD)
+## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.8.1...HEAD)
+
+## [0.8.1](https://github.com/pusher/pusher-platform-ruby/compare/0.8.0...0.8.1) - 2018-05-24
+
+### Fixes
+
+- Fixes `ErrorResponse` being incorrectly instantiated [#18](https://github.com/pusher/pusher-platform-ruby/issues/18)
+
+### Additions
+
+- Adds support for service-specific claims in tokens
+- Adds an example of publishing to a feed in [Feeds](https://pusher.com/feeds)
+
+### Changes
+
+- Removed runtime dependency on Rack
 
 ## [0.8.0](https://github.com/pusher/pusher-platform-ruby/compare/0.7.0...0.8.0) - 2018-04-20
 
