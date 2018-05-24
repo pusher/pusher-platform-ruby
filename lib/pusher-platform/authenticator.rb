@@ -55,6 +55,7 @@ module PusherPlatform
 
       claims.merge!({ sub: options[:user_id] }) unless options[:user_id].nil?
       claims.merge!({ su: true }) if options[:su]
+      claims.merge!(options[:service_claims]) if options[:service_claims]
 
       {
         token: JWT.encode(claims, @key_secret, 'HS256'),
