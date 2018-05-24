@@ -52,7 +52,12 @@ module PusherPlatform
         rescue
           response.body
         end
-        raise ErrorResponse.new(response.status, response.headers, error_description)
+        error_res_opts = {
+          status: response.status,
+          headers: response.headers,
+          error_description: error_description
+        }
+        raise ErrorResponse.new(error_res_opts)
       else
         raise "unsupported response code: #{response.status}"
       end
