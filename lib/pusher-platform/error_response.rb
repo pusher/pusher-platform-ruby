@@ -13,7 +13,9 @@ module PusherPlatform
     end
 
     def to_s
-      "PusherPlatform::ErrorResponse - status: #{@status} description: #{@error_description}"
+      output = "PusherPlatform::ErrorResponse - status: #{@status} description: #{@error_description}."
+      output += " Find out more at #{@error_uri}" if @error_uri
+      output
     end
 
     def as_json(options = {})

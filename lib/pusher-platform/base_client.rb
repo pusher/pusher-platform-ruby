@@ -47,7 +47,7 @@ module PusherPlatform
       elsif response.status >= 300 && response.status <= 399
         raise "unsupported redirect response: #{response.status}"
       elsif response.status >= 400 && response.status <= 599
-        error_description = begin
+        error = begin
           JSON.parse(response.body)
         rescue
           response.body
@@ -55,7 +55,9 @@ module PusherPlatform
         error_res_opts = {
           status: response.status,
           headers: response.headers,
-          error_description: error_description
+          error: error["error"],
+          error_description: error["error_description"],
+          error_uri: error["error_uri"]
         }
         raise ErrorResponse.new(error_res_opts)
       else
