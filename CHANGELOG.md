@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.8.1...HEAD)
+## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.8.2...HEAD)
+
+## [0.8.2](https://github.com/pusher/pusher-platform-ruby/compare/0.8.1...0.8.2) - 2018-07-20
+
+### Fixes
+
+- Fixes `ErrorResponse` being incorrectly instantiated in `BaseClient` [#19](https://github.com/pusher/pusher-platform-ruby/issues/19) [@CarlLooksUp](https://github.com/CarlLooksUp)
 
 ## [0.8.1](https://github.com/pusher/pusher-platform-ruby/compare/0.8.0...0.8.1) - 2018-05-24
 
