@@ -44,11 +44,6 @@ module PusherPlatform
     end
 
     def request(options)
-      if options[:jwt].nil?
-        options = options.merge(
-          { jwt: @authenticator.generate_access_token({ su: true })[:token] }
-        )
-      end
       @client.request(options)
     end
 
