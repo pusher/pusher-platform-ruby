@@ -103,6 +103,7 @@ module PusherPlatform
     def authenticate_using_refresh_token(refresh_token, options)
       old_refresh_token = begin
         JWT.decode(refresh_token, @key_secret, true, {
+          algorithm: 'HS256',
           iss: "api_keys/#{@key_id}",
           verify_iss: true,
         }).first

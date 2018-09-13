@@ -7,6 +7,6 @@ Gem::Specification.new do |s|
   s.email       = 'support@pusher.com'
   s.files       = `git ls-files -- lib/*`.split("\n")
 
-  s.add_runtime_dependency 'excon', '~> 0.54.0'
-  s.add_runtime_dependency 'jwt', '~> 1.5', '>= 1.5.6'
+  s.add_runtime_dependency 'excon', '~> 0.62.0'
+  s.add_runtime_dependency 'jwt', '~> 2.1'
 end
