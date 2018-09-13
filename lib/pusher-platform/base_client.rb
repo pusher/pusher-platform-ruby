@@ -1,11 +1,12 @@
 require 'excon'
 require 'json'
 require_relative './error_response'
+require_relative './error'
 
 module PusherPlatform
   class BaseClient
     def initialize(options)
-      raise "Unspecified host" if options[:host].nil?
+      raise PusherPlatform::Error.new("Unspecified host") if options[:host].nil?
       port_string = options[:port] || ''
       host_string = "https://#{options[:host]}#{port_string}"
       @connection = Excon.new(host_string)
@@ -16,8 +17,8 @@ module PusherPlatform
     end
 
     def request(options)
-      raise "Unspecified request method" if options[:method].nil?
-      raise "Unspecified request path" if options[:path].nil?
+      raise PusherPlatform::Error.new("Unspecified request method") if options[:method].nil?
+      raise PusherPlatform::Error.new("Unspecified request path") if options[:path].nil?
 
       headers = if options[:headers]
         options[:headers].dup
@@ -45,7 +46,7 @@ module PusherPlatform
       if response.status >= 200 && response.status <= 299
         return response
       elsif response.status >= 300 && response.status <= 399
-        raise "unsupported redirect response: #{response.status}"
+        raise PusherPlatform::Error.new("Unsupported redirect response: #{response.status}")
       elsif response.status >= 400 && response.status <= 599
         error = begin
           JSON.parse(response.body)
@@ -61,7 +62,7 @@ module PusherPlatform
         }
         raise ErrorResponse.new(error_res_opts)
       else
-        raise "unsupported response code: #{response.status}"
+        raise PusherPlatform::Error.new("Unsupported response code: #{response.status}")
       end
     end
 

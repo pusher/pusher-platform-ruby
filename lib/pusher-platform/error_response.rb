@@ -1,4 +1,5 @@
 require_relative './common'
+require_relative './error'
 
 module PusherPlatform
   class ErrorResponse < Error
