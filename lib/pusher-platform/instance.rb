@@ -1,6 +1,7 @@
 require_relative './authenticator'
 require_relative './base_client'
 require_relative './common'
+require_relative './sdk_info'
 require_relative './error_response'
 require_relative './error'
 
@@ -14,6 +15,10 @@ module PusherPlatform
       raise PusherPlatform::Error.new("No key provided") if options[:key].nil?
       raise PusherPlatform::Error.new("No service name provided") if options[:service_name].nil?
       raise PusherPlatform::Error.new("No service version provided") if options[:service_version].nil?
+      if options[:sdk_info].nil? && options[:client].nil?
+        raise PusherPlatform::Error.new("You must provide either an SDKInfo or BaseClient instance via sdk_info or client")
+      end
+
       locator = options[:locator]
       @service_name = options[:service_name]
       @service_version = options[:service_version]
@@ -38,7 +43,8 @@ module PusherPlatform
           port: options[:port],
           instance_id: @instance_id,
           service_name: @service_name,
-          service_version: @service_version
+          service_version: @service_version,
+          sdk_info: options[:sdk_info]
         )
       end
 

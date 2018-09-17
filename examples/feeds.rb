@@ -5,7 +5,11 @@ instance = PusherPlatform::Instance.new(
   locator: 'your:instance:locator',
   key: 'your:key',
   service_name: 'feeds',
-  service_version: 'v1'
+  service_version: 'v1',
+  sdk_info: PusherPlatform::SDKInfo.new(
+    product_name: 'feeds',
+    version: '0.0.1'
+  )
 )
 
 server_token_claims = {
