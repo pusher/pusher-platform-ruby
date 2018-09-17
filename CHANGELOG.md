@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.9.0...HEAD)
 
+### Changes
+
+- All errors now inherit from `PusherPlatform::Error`
+- An exception is raised if no `key` key is present in the hash passed to the `initialize` function for `Instance`
+
 ## [0.9.0](https://github.com/pusher/pusher-platform-ruby/compare/0.8.2...0.9.0) - 2018-09-13
 
 ### Changes

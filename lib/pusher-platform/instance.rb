@@ -2,6 +2,7 @@ require_relative './authenticator'
 require_relative './base_client'
 require_relative './common'
 require_relative './error_response'
+require_relative './error'
 
 module PusherPlatform
 
@@ -9,15 +10,16 @@ module PusherPlatform
 
   class Instance
     def initialize(options)
-      raise "No instance locator provided" if options[:locator].nil?
-      raise "No service name provided" if options[:service_name].nil?
-      raise "No service version provided" if options[:service_version].nil?
+      raise PusherPlatform::Error.new("No instance locator provided") if options[:locator].nil?
+      raise PusherPlatform::Error.new("No key provided") if options[:key].nil?
+      raise PusherPlatform::Error.new("No service name provided") if options[:service_name].nil?
+      raise PusherPlatform::Error.new("No service version provided") if options[:service_version].nil?
       locator = options[:locator]
       @service_name = options[:service_name]
       @service_version = options[:service_version]
 
       key_parts = options[:key].match(/^([^:]+):(.+)$/)
-      raise "Invalid key" if key_parts.nil?
+      raise PusherPlatform::Error.new("Invalid key") if key_parts.nil?
 
       @key_id = key_parts[1]
       @key_secret = key_parts[2]

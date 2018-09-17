@@ -69,7 +69,7 @@ begin
   p response.body
 rescue PusherPlatform::ErrorResponse => e
   p e.to_s
-rescue
+rescue PusherPlatform::Error => e
   p e
 end
 ```
