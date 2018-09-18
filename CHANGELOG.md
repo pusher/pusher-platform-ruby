@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.10.0...HEAD)
 
+### Changes
+
+- *Breaking* An instance of `SDKInfo` is now required when instantiating an instance of `BaseClient`. This can either be directly provided to the `BaseClient` and then the base client provided to an instance of `Instance` in the `client` key or the `options` object that `Instance`s initializer takes, or you can provide the `SDKInfo` instance to the `Instance` initializer in the `sdk_info` key of its `options` parameter
+
 ## [0.10.0](https://github.com/pusher/pusher-platform-ruby/compare/0.9.0...0.10.0) - 2018-09-17
 
 ### Changes

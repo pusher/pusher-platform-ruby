@@ -5,7 +5,11 @@ instance = PusherPlatform::Instance.new(
   locator: 'your:instance:locator',
   key: 'your:key',
   service_name: 'chatkit',
-  service_version: 'v1'
+  service_version: 'v1',
+  sdk_info: PusherPlatform::SDKInfo.new(
+    product_name: 'chatkit',
+    version: '0.0.1'
+  )
 )
 
 # We need a su token to create a Chatkit user
