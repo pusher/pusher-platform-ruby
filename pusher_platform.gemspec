@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'excon', '~> 0.62.0'
   s.add_runtime_dependency 'jwt', '~> 2.1'
+  s.add_runtime_dependency 'rack', '~> 2.0.5'
 end
