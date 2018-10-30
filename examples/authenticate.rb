@@ -2,10 +2,14 @@ require_relative '../lib/pusher-platform'
 
 # Get these from the Dashbaord
 instance = PusherPlatform::Instance.new(
-  locator: 'v1:api-ceres:some-instance-id',
+  locator: 'v1:us1:some-instance-id',
   key: 'key-id:key-secret',
   service_name: 'chatkit',
-  service_version: 'v1'
+  service_version: 'v1',
+  sdk_info: PusherPlatform::SDKInfo.new(
+    product_name: 'chatkit',
+    version: '0.0.0'
+  )
 )
 
 puts instance.authenticate({ grant_type: 'client_credentials' }, { user_id: 'ham' }).to_json
