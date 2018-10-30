@@ -7,7 +7,7 @@ Pusher Platform SDK for Ruby.
 Add `pusher-platform` to your Gemfile:
 
 ```
-gem 'pusher-platform', '~> 0.11.1'
+gem 'pusher-platform', '~> 0.11.2'
 ```
 
 ## Usage

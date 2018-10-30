@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'pusher-platform'
-  s.version     = '0.11.1'
+  s.version     = '0.11.2'
   s.licenses    = ['MIT']
   s.summary     = "Pusher Platform Ruby SDK"
   s.authors     = ["Pusher"]
