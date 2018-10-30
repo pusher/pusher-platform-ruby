@@ -1,16 +1,19 @@
 require 'jwt'
-require 'rack'
 require_relative './common'
 require_relative './authentication_response'
+require_relative './rack_query_parser'
 
 module PusherPlatform
   TOKEN_EXPIRY = 24*60*60
 
   class Authenticator
+
     def initialize(instance_id, key_id, key_secret)
       @instance_id = instance_id
       @key_id = key_id
       @key_secret = key_secret
+      # see https://github.com/rack/rack/blob/5559676e7b5a3107d39552285ce8b714b672bde6/lib/rack/utils.rb#L27
+      @query_parser = QueryParser.make_default(65536, 100)
     end
 
     def authenticate(auth_payload, options)
@@ -30,7 +33,7 @@ module PusherPlatform
     end
 
     def authenticate_with_request(request, options)
-      auth_data = Rack::Utils.parse_nested_query request.body.read
+      auth_data = @query_parser.parse_nested_query request.body.read
       authenticate(auth_data, options)
     end
 
@@ -39,7 +42,7 @@ module PusherPlatform
     end
 
     def authenticate_with_refresh_token_and_request(request, options)
-      auth_data = Rack::Utils.parse_nested_query request.body.read
+      auth_data = @query_parser.parse_nested_query request.body.read
       authenticate_based_on_grant_type(auth_data, options)
     end
 

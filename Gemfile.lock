@@ -4,14 +4,12 @@ PATH
     pusher-platform (0.11.1)
       excon (~> 0.62.0)
       jwt (~> 2.1)
-      rack (~> 2.0.5)
 
 GEM
   remote: https://rubygems.org/
   specs:
     excon (0.62.0)
     jwt (2.1.0)
-    rack (2.0.5)
 
 PLATFORMS
   ruby
@@ -20,4 +18,4 @@ DEPENDENCIES
   pusher-platform!
 
 BUNDLED WITH
-   1.16.2
+   1.16.6
