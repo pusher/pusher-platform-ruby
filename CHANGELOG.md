@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/pusher/pusher-platform-ruby/compare/0.11.1...HEAD)
 
+### Changes
+
+- Remove rack as a required dependency
+
 ## [0.11.1](https://github.com/pusher/pusher-platform-ruby/compare/0.11.0...0.11.1) - 2018-09-18
 
 ### Changes
